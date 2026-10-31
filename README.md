@@ -16,7 +16,7 @@ Renseigner `VITE_SUPABASE_URL` et `VITE_SUPABASE_PUBLISHABLE_KEY` dans `.env.loc
 
 Pour une base neuve, exécuter `supabase/schema.sql`, puis appliquer dans l’ordre les migrations de `supabase/migrations/` qui ne sont pas déjà présentes. Pour l’instance ComTour existante, appliquer `20261101_workflows_finance.sql` dans l’éditeur SQL Supabase. Cette migration est additive et conserve les données métier déjà présentes. Les fonctions de devis détaillés, les bilans de mission, les charges récurrentes, les justificatifs privés et les paramètres de l’agence nécessitent cette migration. L’accès aux données métier exige une session authentifiée et un profil ComTour; les tables activent RLS.
 
-Les justificatifs sont stockés dans un bucket privé `comtour-documents`, avec liens temporaires signés. Les reçus, devis et bilans s’ouvrent dans la boîte d’impression du navigateur et peuvent être enregistrés en PDF. Les exports tabulaires sont au format CSV UTF-8 compatible Excel.
+Les justificatifs sont stockés dans un bucket privé `comtour-documents`, avec liens temporaires signés. Les devis, factures, reçus, bilans de mission et rapports peuvent être téléchargés directement en PDF, ou envoyés à l’impression. Les exports tabulaires sont au format CSV UTF-8 compatible Excel.
 
 ## Déploiement GitHub Pages
 
@@ -41,3 +41,4 @@ Les sauvegardes automatiques de base de données ne sont pas pilotées par le fr
 - Tableau de bord et rapports financiers fondés sur les données Supabase, export CSV/Excel et impression PDF.
 
 La migration `20261101_workflows_finance.sql` doit être exécutée dans Supabase avant d’utiliser les nouveaux parcours. La récurrence des charges est générée de façon idempotente à la première ouverture de l’application par un profil comptable ou administrateur chaque mois; une exécution planifiée indépendante du frontend reste à configurer si elle est requise.
+
