@@ -14,7 +14,9 @@ Renseigner `VITE_SUPABASE_URL` et `VITE_SUPABASE_PUBLISHABLE_KEY` dans `.env.loc
 
 ## Base Supabase
 
-Pour une base neuve, exécuter `supabase/schema.sql` dans SQL Editor. Pour une base déjà initialisée, appliquer `supabase/migrations/20261031_catalogue_services.sql`. L’accès aux données métier exige une session authentifiée et un profil ComTour; les tables activent RLS. Créer le premier utilisateur admin selon l’instruction en fin de schéma.
+Pour une base neuve, exécuter `supabase/schema.sql`, puis appliquer dans l’ordre les migrations de `supabase/migrations/` qui ne sont pas déjà présentes. Pour l’instance ComTour existante, appliquer `20261101_workflows_finance.sql` dans l’éditeur SQL Supabase. Cette migration est additive et conserve les données métier déjà présentes. Les fonctions de devis détaillés, les bilans de mission, les charges récurrentes, les justificatifs privés et les paramètres de l’agence nécessitent cette migration. L’accès aux données métier exige une session authentifiée et un profil ComTour; les tables activent RLS.
+
+Les justificatifs sont stockés dans un bucket privé `comtour-documents`, avec liens temporaires signés. Les reçus, devis et bilans s’ouvrent dans la boîte d’impression du navigateur et peuvent être enregistrés en PDF. Les exports tabulaires sont au format CSV UTF-8 compatible Excel.
 
 ## Déploiement GitHub Pages
 
@@ -26,6 +28,16 @@ La clé publishable Supabase est intégrée au JavaScript du navigateur et n’e
 
 Configurer les sauvegardes/PITR adaptées au plan Supabase, conserver aussi des exports chiffrés hors du projet et tester les restaurations. La rétention et la disponibilité varient selon le forfait Supabase.
 
-## État de la version
+Les sauvegardes automatiques de base de données ne sont pas pilotées par le frontend GitHub Pages. Vérifier le plan Supabase du projet ComTour et mettre en place une copie de sauvegarde externe avant d’utiliser l’application comme registre comptable de référence.
 
-Le dépôt comprend la structure frontend, l’authentification, le catalogue de services, les premiers écrans de gestion, le schéma SQL et le workflow Pages. Les cycles complets de facturation, paiements, rapprochement, documents PDF, clôture financière, rapports et exports doivent encore être développés avant un usage opérationnel.
+## Parcours actuellement implémentés
+
+- Clients, prestataires, catalogue, dépenses, paiements et charges récurrentes.
+- Devis avec plusieurs prestations, frais de service, devise, taux et acompte.
+- Conversion d’un devis validé en facture et en mission.
+- Enregistrement des règlements, statut des factures et reçus imprimables.
+- Suppléments de mission en attente d’accord client; l’accord ou le refus est tracé dans le dossier.
+- Suivi financier par mission, justificatifs privés, historique d’événements, clôture/réouverture contrôlée.
+- Tableau de bord et rapports financiers fondés sur les données Supabase, export CSV/Excel et impression PDF.
+
+La migration `20261101_workflows_finance.sql` doit être exécutée dans Supabase avant d’utiliser les nouveaux parcours. La récurrence des charges est générée de façon idempotente à la première ouverture de l’application par un profil comptable ou administrateur chaque mois; une exécution planifiée indépendante du frontend reste à configurer si elle est requise.
