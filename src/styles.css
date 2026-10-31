@@ -9,4 +9,7 @@
 .upgrade-banner{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:13px 15px;margin:0 0 20px;background:#fff7e8;border:1px solid #eed8a1;border-radius:8px;color:#574825}.upgrade-banner>div{display:grid;gap:4px}.upgrade-banner b{font-size:12px}.upgrade-banner span{font-size:11px;line-height:1.5}.upgrade-banner a{font-size:11px;color:#087f80;font-weight:700;white-space:nowrap}
 @media(max-width:760px){.upgrade-banner{align-items:flex-start;flex-direction:column;gap:8px}}
 .history-list{border-top:1px solid #edf1f4}.history-entry{display:grid;grid-template-columns:1fr 160px 150px;gap:10px;align-items:center;padding:11px 4px;border-bottom:1px solid #edf1f4;font-size:11px}.history-entry b{color:#294359}.history-entry span{color:#768798}.history-entry strong{text-align:right;color:#30495d}.history-empty,.history-summary{font-size:11px;color:#758398}
+.audit-list{display:grid;gap:0}.audit-entry{display:grid;grid-template-columns:minmax(150px,220px) minmax(140px,1fr) minmax(160px,1.2fr);gap:14px;padding:13px 0;border-bottom:1px solid #edf1f4;font-size:11px}.audit-entry time,.audit-entry span{color:#768798}
+@media(max-width:600px){.audit-entry{grid-template-columns:1fr;gap:4px}}
 @media(max-width:600px){.history-entry{grid-template-columns:1fr auto}.history-entry span{grid-column:1}.history-entry strong{grid-column:2;grid-row:1/3}}
+

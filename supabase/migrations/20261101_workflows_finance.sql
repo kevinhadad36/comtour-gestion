@@ -105,6 +105,40 @@ create table if not exists public.company_settings (
 alter table public.company_settings add column if not exists opening_cash_kmf numeric(18,2) not null default 0;
 insert into public.company_settings(id) values (1) on conflict (id) do nothing;
 
+-- Preserve the quote -> mission -> invoice -> payment chain even when an
+-- invoice or its first payment predates the mission record.
+update public.invoices i set mission_id=m.id
+from public.missions m
+where i.mission_id is null and i.quote_id=m.quote_id;
+update public.payments p set mission_id=coalesce(i.mission_id,m.id)
+from public.invoices i
+left join public.missions m on m.quote_id=i.quote_id
+where p.invoice_id=i.id and p.mission_id is null and coalesce(i.mission_id,m.id) is not null;
+
+create or replace function public.attach_payment_to_mission() returns trigger
+language plpgsql security definer set search_path=public as $$
+begin
+  if new.mission_id is null and new.invoice_id is not null then
+    select coalesce(i.mission_id,m.id) into new.mission_id
+    from public.invoices i
+    left join public.missions m on m.quote_id=i.quote_id
+    where i.id=new.invoice_id
+    limit 1;
+  end if;
+  return new;
+end $$;
+drop trigger if exists payments_attach_mission on public.payments;
+create trigger payments_attach_mission before insert or update of invoice_id,mission_id on public.payments
+for each row execute function public.attach_payment_to_mission();
+
+-- Extend the append-only audit journal to the financial tables introduced here.
+do $$ declare t text; begin
+  foreach t in array array['quote_items','mission_adjustments','recurring_charges','recurring_charge_runs'] loop
+    execute format('drop trigger if exists %I_audit on public.%I',t,t);
+    execute format('create trigger %I_audit after insert or update or delete on public.%I for each row execute function public.audit_row()',t,t);
+  end loop;
+end $$;
+
 create or replace function public.comtour_audit_event() returns trigger
 language plpgsql security definer set search_path=public as $$
 declare payload jsonb; v_mission uuid;
@@ -276,3 +310,4 @@ drop policy if exists "staff access own documents" on storage.objects;
 create policy "staff access own documents" on storage.objects for all to authenticated
 using (bucket_id='comtour-documents' and public.is_staff())
 with check (bucket_id='comtour-documents' and public.is_staff());
+
